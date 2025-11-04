@@ -1,0 +1,418 @@
+/* Base styles */
+body {
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  background: #181818;
+  color: #fff;
+  margin: 0;
+  padding: 0;
+}
+
+/* Layout containers */
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #181818;
+}
+
+.app-header {
+  background: #23272f;
+  border-bottom: 2px solid #0d6efd;
+  box-shadow: 0 2px 8px rgba(13, 110, 253, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 0;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 24px;
+}
+
+.logo {
+  width: 36px;
+  height: 36px;
+  margin-right: 16px;
+}
+
+.app-title {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #0d6efd;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 12px #0008;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  background: #181818;
+  min-height: 0;
+  padding: 32px 0 24px 0;
+}
+
+.app-footer {
+  background: #23272f;
+  color: #aaa;
+  text-align: center;
+  padding: 18px 0 12px 0;
+  font-size: 1rem;
+  border-top: 2px solid #0d6efd;
+  letter-spacing: 0.01em;
+  box-shadow: 0 -2px 8px rgba(13, 110, 253, 0.08);
+}
+
+/* Video player and panels */
+.video-player,
+.annotation-list,
+.properties-panel,
+.annotation-toolbar {
+  border: 2px solid #232323;
+  border-radius: 12px;
+  background: #23272f;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.video-player {
+  max-width: 1000px;
+  margin: 2rem auto;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+  padding-bottom: 12px;
+}
+
+.video-player:hover,
+.properties-panel:hover,
+.annotation-list:hover,
+.annotation-toolbar:hover {
+  box-shadow: 0 6px 24px rgba(13, 110, 253, 0.12);
+  border-color: #0d6efd;
+}
+
+/* Controls */
+.controls,
+.controls-main {
+  background: #1a1d23;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 0 0 16px 16px;
+  padding: 10px 20px;
+  width: 100%;
+  box-sizing: border-box;
+  border-bottom: 1px solid #232323;
+  flex-wrap: wrap;
+}
+
+.controls button,
+.controls select {
+  min-width: 36px;
+  min-height: 32px;
+  background: #292d36;
+  border: 1.5px solid transparent;
+  padding: 5px 10px;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.controls button:hover,
+.controls button.active,
+.controls select:focus {
+  background: #0d6efd;
+  border-color: #0d6efd;
+  color: #fff;
+}
+
+input[type="range"] {
+  flex: 1;
+  accent-color: #0d6efd;
+  height: 6px;
+  margin: 0 10px;
+}
+
+/* Progress markers */
+.progress-markers {
+  position: relative;
+  width: 100%;
+  height: 0;
+}
+
+/* Annotation toolbar bar container */
+.annotation-toolbar-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #23272f;
+  border-radius: 0 0 12px 12px;
+  border-top: 1px solid #232323;
+  padding: 8px 20px;
+  margin-bottom: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* === YOUR PREFERRED TOOLBAR STYLES START HERE === */
+.annotation-toolbar {
+  display: flex;
+  gap: 10px;
+  padding: 8px 12px;
+  background: #1c1f26;
+  border-radius: 10px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+  border: 2px solid transparent;
+  /* No border by default */
+  transition: border-color 0.2s;
+}
+
+.annotation-toolbar:hover,
+.annotation-toolbar:focus-within {
+  border-color: #f1fd0d;
+  /* Show border on hover/focus */
+}
+
+.tool-btn {
+  background: #23272f;
+  color: #e3e6ef;
+  border: 2px solid transparent;
+  /* Add border */
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  position: relative;
+  transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s;
+}
+
+.tool-btn:hover {
+  background: #2c313c;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(13, 110, 253, 0.15);
+  border-color: #79fd0d;
+  /* Add border color on hover */
+}
+
+.tool-btn.active {
+  background: #0d6efd;
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(13, 110, 253, 0.3);
+  border-color: #ffbf00;
+  /* Optional: highlight active with a gold border */
+}
+
+.tool-label {
+  margin-left: 2px;
+}
+
+.shortcut-hint {
+  font-size: 7px;
+  font-weight: 500;
+  color: #b0b3c4;
+  margin-left: 4px;
+  background: #353b48;
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+
+/* === END OF TOOLBAR STYLES === */
+
+/* Undo/Redo */
+.annotation-undo-redo {
+  display: flex;
+  gap: 8px;
+}
+
+.undo-redo-box {
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 9px 4px 9px;
+  background: #181c22;
+  display: flex;
+  gap: 10px;
+  transition: border-color 0.2s;
+}
+
+.undo-redo-box:hover,
+.undo-redo-box:focus-within {
+  border-color: #f1fd0d;
+}
+
+.annotation-undo-redo button {
+  background: #292d36;
+  border: 1.5px solid transparent;
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
+}
+
+.annotation-undo-redo button:hover {
+  background: #0d6efd;
+  border-color: #0d6efd;
+  color: #fff;
+}
+
+/* Annotation list */
+.annotation-list {
+  min-width: 200px;
+  padding: 12px;
+  color: #fff;
+}
+
+.annotation-list h4 {
+  margin: 0 0 8px 0;
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #0d6efd;
+}
+
+.annotation-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.annotation-list li {
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.15s;
+}
+
+.annotation-list li.active,
+.annotation-list li:hover {
+  background: #0d6efd;
+  color: #fff;
+}
+
+/* Properties panel */
+.properties-panel {
+  min-width: 240px;
+  padding: 16px;
+  color: #fff;
+}
+
+.properties-panel h4 {
+  margin-top: 0;
+  color: #0d6efd;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+.properties-panel label {
+  display: block;
+  margin-bottom: 4px;
+  color: #aaa;
+  font-size: 0.97em;
+}
+
+.properties-panel input[type="color"],
+.properties-panel input[type="number"],
+.properties-panel input[type="text"] {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #292d36;
+  color: #fff;
+  font-size: 1em;
+}
+
+.properties-panel button {
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.18s;
+}
+
+.properties-panel button:hover {
+  background: #c0392b;
+}
+
+/* Speed buttons */
+.speed-buttons {
+  display: flex;
+  gap: 4px;
+  margin-left: 10px;
+}
+
+.speed-buttons button {
+  background: #292d36;
+  border: 1.5px solid transparent;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
+}
+
+.speed-buttons button.active,
+.speed-buttons button:hover {
+  background: #0d6efd;
+  border-color: #0d6efd;
+  color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .video-player {
+    max-width: 100%;
+  }
+
+  .controls {
+    flex-wrap: wrap;
+  }
+
+  .annotation-list,
+  .properties-panel {
+    min-width: 140px;
+  }
+}
+
+@media (max-width: 700px) {
+  .video-player {
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .controls {
+    padding: 8px 4px;
+    font-size: 15px;
+  }
+
+  .annotation-list,
+  .properties-panel {
+    padding: 6px;
+  }
+}
