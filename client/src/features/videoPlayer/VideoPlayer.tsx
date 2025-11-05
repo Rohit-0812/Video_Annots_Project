@@ -9,8 +9,11 @@ import AnnotationToolbar from '../annotations/AnnotationToolbar';
 import AnnotationProperties from '../annotations/AnnotationProperties';
 import AnnotationList from '../annotations/AnnotationList';
 import {
-  FiPlay, FiPause, FiRotateCcw, FiRotateCw, FiMaximize, FiChevronLeft, FiChevronRight
+  FiPlay, FiPause, FiRotateCcw, FiRotateCw, FiMaximize, FiChevronLeft, FiChevronRight,
+  FiCamera // 1. Imported FiCamera
 } from 'react-icons/fi';
+
+
 
 const PLAYBACK_RATES = [0.5, 1, 1.25, 1.5, 2];
 
@@ -22,7 +25,7 @@ const VideoPlayer: React.FC = () => {
 
   // Responsive description example
   const description = `A professional web-based video annotation tool that allows users to
-   watch videos and add timestamped annotations. This project is designed for efficient  video review, labeling, and collaborative feedback.`;
+    watch videos and add timestamped annotations. This project is designed for efficient  video review, labeling, and collaborative feedback.`;
 
   const [showFullDesc, setShowFullDesc] = useState(false);
   const isLong = description.length > 180;
@@ -170,6 +173,33 @@ const VideoPlayer: React.FC = () => {
     }
   };
 
+  // --- 2. ADDED THE SCREENSHOT FUNCTION ---
+  const takeScreenshot = () => {
+    const video = videoRef.current;
+    if (!video) return; // Make sure the video is loaded
+
+    // Create a virtual canvas
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    // Draw the current video frame onto the canvas
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    }
+
+    // Create an image from the canvas and trigger a download
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = 'screenshot.png'; // File name
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  // --------------------------------------
+
   const handlePlayPause = () => dispatch(setPlaying(!playing));
   const handleTimeUpdate = () => {
     if (videoRef.current) dispatch(setCurrentTime(videoRef.current.currentTime));
@@ -301,6 +331,13 @@ const VideoPlayer: React.FC = () => {
             <button className="player-btn" onClick={handleFullscreen} aria-label="Fullscreen">
               <FiMaximize size={20} />
             </button>
+  
+            {/* --- 3. ADDED THE SCREENSHOT BUTTON --- */}
+            <button className="player-btn" onClick={takeScreenshot} title="Take Screenshot" aria-label="Take Screenshot">
+              <FiCamera size={20} />
+            </button>
+            {/* ----------------------------------- */}
+
           </div>
           {/* Annotation toolbar and undo/redo row */}
           <div

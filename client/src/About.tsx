@@ -56,7 +56,7 @@ const About: React.FC = () => (
       'UI: Responsive design with custom theming'
     ]} extraItem={{
       label: 'View Full Documentation',
-      href: 'https://github.com/krishnaNallasingu/Video-Annotation-Tool#video-annotation-tool'
+      href: 'https://github.com/Rohit-0812/Video_Annots_Project.git'
     }} />
 
     <h3 style={{ color: '#0d6efd', marginTop: 32 }}>Developer</h3>
@@ -65,7 +65,7 @@ const About: React.FC = () => (
       Prefinal year Computer Science undergraduate at IIIT Hyderabad.<br />
 
       <a
-        href="https://www.linkedin.com/in/jagankrishna-nallasingu-0725b4268/"
+        href="https://www.linkedin.com/in/rohit-sunkari-0a8a8226b/"
         target="_blank"
         rel="noopener noreferrer"
         style={{
@@ -80,7 +80,7 @@ const About: React.FC = () => (
       </a>{' '}
       |{' '}
       <a
-        href="https://github.com/krishnaNallasingu"
+        href="https://github.com/Rohit-0812/Video_Annots_Project.git"
         target="_blank"
         rel="noopener noreferrer"
         style={{
