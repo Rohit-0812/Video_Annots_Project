@@ -214,7 +214,7 @@ https://video-annotation-tool.onrender.com/api/annotations
 
 ## 📬 Contact
 
-For questions or feedback, please open an issue or contact [jagankrishna369@gmail.com](mailto:jagankrishna369@gmail.com).
+For questions or feedback, please open an issue or contact [rohitsmdc@gmail.com](mailto:rohitsmdc@gmail.com).
 
 ---
 
