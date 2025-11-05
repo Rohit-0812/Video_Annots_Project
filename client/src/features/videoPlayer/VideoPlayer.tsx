@@ -10,20 +10,25 @@ import AnnotationProperties from '../annotations/AnnotationProperties';
 import AnnotationList from '../annotations/AnnotationList';
 import {
   FiPlay, FiPause, FiRotateCcw, FiRotateCw, FiMaximize, FiChevronLeft, FiChevronRight,
-  FiCamera // 1. Imported FiCamera
+  FiCamera,
+  FiSettings,
+  FiVolume2, // <-- Add this
+  FiVolumeX  // <-- Add this
 } from 'react-icons/fi';
-
-
 
 const PLAYBACK_RATES = [0.5, 1, 1.25, 1.5, 2];
 
 const VideoPlayer: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const playerContainerRef = useRef<HTMLDivElement>(null);
+  const [showSpeedMenu, setShowSpeedMenu] = useState(false);
+  const [volume, setVolume] = useState(1); // 1 = 100% volume
+  const [lastVolume, setLastVolume] = useState(1); // Remembers volume before mute
+  
   const dispatch = useAppDispatch();
   const { playing, currentTime, duration, playbackRate } = useSelector((state: RootState) => state.videoPlayer);
   const { annotations } = useSelector((state: RootState) => state.annotations);
 
-  // Responsive description example
   const description = `A professional web-based video annotation tool that allows users to
     watch videos and add timestamped annotations. This project is designed for efficient  video review, labeling, and collaborative feedback.`;
 
@@ -114,9 +119,10 @@ const VideoPlayer: React.FC = () => {
     marginTop: 0,
     transition: 'box-shadow 0.3s, transform 0.3s'
   };
+  // --- End Style Objects ---
 
 
-  // Fetch annotations from backend on mount
+  // --- Hooks ---
   useEffect(() => {
     dispatch(fetchAnnotations());
   }, [dispatch]);
@@ -126,6 +132,7 @@ const VideoPlayer: React.FC = () => {
     if (playing) videoRef.current.play();
     else videoRef.current.pause();
   }, [playing]);
+
   useEffect(() => {
     if (videoRef.current) videoRef.current.playbackRate = playbackRate;
   }, [playbackRate]);
@@ -151,7 +158,10 @@ const VideoPlayer: React.FC = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [playing, currentTime, duration]);
+  // --- End Hooks ---
 
+
+  // --- Functions ---
   const seekBy = useCallback((seconds: number) => {
     if (!videoRef.current) return;
     let newTime = Math.min(Math.max(videoRef.current.currentTime + seconds, 0), duration);
@@ -168,187 +178,304 @@ const VideoPlayer: React.FC = () => {
   }, [dispatch, duration]);
 
   const handleFullscreen = () => {
-    if (videoRef.current && videoRef.current.requestFullscreen) {
-      videoRef.current.requestFullscreen();
+    if (playerContainerRef.current && playerContainerRef.current.requestFullscreen) {
+      playerContainerRef.current.requestFullscreen();
     }
   };
 
-  // --- 2. ADDED THE SCREENSHOT FUNCTION ---
   const takeScreenshot = () => {
     const video = videoRef.current;
-    if (!video) return; // Make sure the video is loaded
-
-    // Create a virtual canvas
+    if (!video) return;
     const canvas = document.createElement('canvas');
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-
-    // Draw the current video frame onto the canvas
     const ctx = canvas.getContext('2d');
     if (ctx) {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     }
-
-    // Create an image from the canvas and trigger a download
     const dataUrl = canvas.toDataURL('image/png');
     const link = document.createElement('a');
     link.href = dataUrl;
-    link.download = 'screenshot.png'; // File name
+    link.download = 'screenshot.png';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
-  // --------------------------------------
 
   const handlePlayPause = () => dispatch(setPlaying(!playing));
-  const handleTimeUpdate = () => {
-    if (videoRef.current) dispatch(setCurrentTime(videoRef.current.currentTime));
+  // Syncs the React state with the video element
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.volume = volume;
+    }
+  }, [volume]);
+
+  // Updates state when the new slider is moved
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setVolume(Number(e.target.value));
   };
+
+  // Mutes or restores the last volume
+  const toggleMute = () => {
+    if (volume > 0) {
+      setLastVolume(volume); // Save the current volume
+      setVolume(0); // Mute
+    } else {
+      setVolume(lastVolume); // Restore the last saved volume
+    }
+  };
+  
+  // *** THIS IS THE FIX FOR THE SLIDER ***
+  const handleTimeUpdate = useCallback(() => {
+    if (videoRef.current) {
+      dispatch(setCurrentTime(videoRef.current.currentTime));
+    }
+  }, [dispatch]);
+
   const handleLoadedMetadata = () => {
     if (videoRef.current) dispatch(setDuration(videoRef.current.duration));
   };
+  
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (videoRef.current) {
       videoRef.current.currentTime = Number(e.target.value);
       dispatch(setCurrentTime(Number(e.target.value)));
     }
   };
+  
   const speedButtonStyle = (rate: number) => ({
     background: playbackRate === rate ? '#0d6efd' : '#292d36',
     color: '#fff',
     border: playbackRate === rate ? '1.5px solid #0d6efd' : '1.5px solid transparent',
     borderRadius: 8,
     padding: '6px 12px',
-    margin: '0 2px',
+    margin: '2px 0', 
     cursor: 'pointer',
     fontWeight: playbackRate === rate ? 700 : 400,
     transition: 'background 0.18s, border-color 0.18s, transform 0.18s',
-    boxShadow: playbackRate === rate ? '0 2px 8px #0d6efd33' : 'none'
+    boxShadow: playbackRate === rate ? '0 2px 8px #0d6efd33' : 'none',
+    width: '100px'
   });
+  
   const formatTime = (t: number) => {
     const m = Math.floor(t / 60);
     const s = Math.floor(t % 60);
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
+  // --- End Functions ---
+
 
   return (
     <div className="video-main-layout" style={layoutStyles}>
       {/* Left: Video + Properties */}
       <div className="video-left-col" style={leftColStyles}>
+        
         {/* Video Player */}
         <div className="video-player-box" style={videoBoxStyles}>
-          <div style={{ position: 'relative', width: '100%' }}>
+
+          {/* This ANCHOR DIV now holds the video and FLOATING controls */}
+          <div 
+            ref={playerContainerRef}
+            className="video-anchor-container" 
+            style={{ position: 'relative', width: '100%', overflow: 'hidden' }}
+          >
+            
             <video
               ref={videoRef}
               src="/sample.mp4"
               onTimeUpdate={handleTimeUpdate}
               onLoadedMetadata={handleLoadedMetadata}
+              onClick={handlePlayPause} 
               style={{
                 width: '100%',
                 height: 450,
                 display: 'block',
                 background: '#000',
                 borderRadius: '12px 12px 0 0',
-                transition: 'box-shadow 0.3s'
+                position: 'relative' // *** FIX FOR STACKING ***
               }}
               tabIndex={0}
             />
-            <AnnotationsCanvas currentTime={currentTime} playing={playing} />
-          </div>
-          {/* Seeker timeline */}
-          <div style={{ background: '#181818', padding: '0 0', position: 'relative' }}>
-            <input
-              type="range"
-              min={0}
-              max={duration}
-              step={0.05}
-              value={currentTime}
-              onChange={handleSeek}
-              className="custom-seeker"
-              style={{ width: '100%', height: 8, margin: '10px 0', background: 'transparent' }}
-            />
-            <div
-              style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                height: 8,
-                width: `${(currentTime / duration) * 100}%`,
-                background: 'linear-gradient(90deg, #0d6efd 60%,rgb(253, 77, 13) 100%)',
-                borderRadius: 4,
-                pointerEvents: 'none',
-                transition: 'width 0.1s'
-              }}
-            />
-            {/* Progress bar markers */}
-            <div className="progress-markers" style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 0 }}>
-              {duration > 0 &&
-                annotations.map((ann, idx) => (
-                  <div
-                    key={ann.id || idx}
-                    className="marker"
-                    style={{
-                      left: `${(ann.timestamp / duration) * 100}%`,
-                    }}
-                    tabIndex={0}
-                  >
-                    <div className="marker-tooltip">
-                      {ann.type} @ {Math.round(ann.timestamp * 10) / 10}s
-                    </div>
-                  </div>
-                ))}
+            
+            {/* *** THIS IS THE FIX FOR THE ANNOTATIONS *** */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              zIndex: 10 // Above video (0), below controls (20)
+            }}>
+              <AnnotationsCanvas currentTime={currentTime} playing={playing} />
             </div>
-          </div>
-          {/* Controls row */}
-          <div className="controls" style={{ display: 'flex', alignItems: 'center', gap: 20, padding: '5px 80px 5px', border: 0 }}>
-            <button className="player-btn" onClick={handlePlayPause} aria-label="Play/Pause">
-              {playing ? <FiPause size={22} /> : <FiPlay size={22} />}
-            </button>
 
-            <span style={{ minWidth: 70, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
+
+            {/* --- 1. SEEKER TIMELINE (FLOATING) --- */}
+            <div style={{
+              padding: '0 0',
+              position: 'absolute',
+              bottom: '50px', 
+              left: 0,
+              width: '100%',
+              zIndex: 20, // Above canvas
+              background: 'none' 
+            }}>
+              <input
+                type="range"
+                min={0}
+                max={duration}
+                step={0.05}
+                value={currentTime}
+                onChange={handleSeek}
+                className="custom-seeker"
+                style={{ width: '100%', height: 8, margin: '10px 0', background: 'transparent' }}
+              />
+              <div
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  top: 0,
+                  height: 8,
+                  width: `${(currentTime / duration) * 100}%`,
+                  background: 'linear-gradient(90deg, #0d6efd 60%,rgb(253, 77, 13) 100%)',
+                  borderRadius: 4,
+                  pointerEvents: 'none',
+                  transition: 'width 0.1s'
+                }}
+              />
+              <div className="progress-markers" style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 0 }}>
+                {duration > 0 &&
+                  annotations.map((ann, idx) => (
+                    <div
+                      key={ann.id || idx}
+                      className="marker"
+                      style={{ left: `${(ann.timestamp / duration) * 100}%` }}
+                      tabIndex={0}
+                    >
+                      <div className="marker-tooltip">
+                        {ann.type} @ {Math.round(ann.timestamp * 10) / 10}s
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* --- 2. CONTROLS ROW (FLOATING) --- */}
+            <div className="controls" style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 20,
+              border: 0,
+              position: 'absolute',
+              bottom: '0px', 
+              left: 0,
+              width: '100%',
+              zIndex: 20, // Above canvas
+              background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)',
+              padding: '10px 20px', 
+              boxSizing: 'border-box'
+            }}>
+              <span style={{ minWidth: 70, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
               {formatTime(currentTime)} / {formatTime(duration)}
             </span>
-            {/* Playback speed buttons */}
-            <div style={{ display: 'flex', alignItems: 'center', marginLeft: 12 }}>
-              {PLAYBACK_RATES.map(rate => (
-                <button
-                  key={rate}
-                  style={speedButtonStyle(rate)}
-                  onClick={() => dispatch(setPlaybackRate(rate))}
-                  aria-label={`Set playback speed to ${rate}x`}
-                  className="player-btn"
-                >
-                  {rate}x
-                </button>
-              ))}
+                        {/* --- NEW VOLUME CONTROLS --- */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button className="player-btn" onClick={toggleMute} aria-label="Toggle Mute">
+                {/* Show mute icon if volume is 0, else show volume icon */}
+                {volume === 0 ? <FiVolumeX size={20} /> : <FiVolume2 size={20} />}
+              </button>
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.01}
+                value={volume}
+                onChange={handleVolumeChange}
+                className="custom-seeker" // Re-use the slider style
+                style={{ width: '100px', height: 6, margin: 0 }}
+              />
             </div>
-            <button className="player-btn" onClick={() => frameByFrame(-1)} title="Previous frame" aria-label="Previous frame">
-              <FiChevronLeft size={20} />
-            </button>
-            <button className="player-btn" onClick={() => frameByFrame(1)} title="Next frame" aria-label="Next frame">
-              <FiChevronRight size={20} />
-            </button>
-            <button className="player-btn" onClick={handleFullscreen} aria-label="Fullscreen">
-              <FiMaximize size={20} />
-            </button>
-  
-            {/* --- 3. ADDED THE SCREENSHOT BUTTON --- */}
-            <button className="player-btn" onClick={takeScreenshot} title="Take Screenshot" aria-label="Take Screenshot">
-              <FiCamera size={20} />
-            </button>
-            {/* ----------------------------------- */}
+            {/* --- END OF VOLUME CONTROLS --- */}
+              
+              <button className="player-btn" onClick={handlePlayPause} aria-label="Play/Pause">
+                {playing ? <FiPause size={22} /> : <FiPlay size={22} />}
+              </button>
 
-          </div>
-          {/* Annotation toolbar and undo/redo row */}
+              <span style={{ minWidth: 70, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
+                {formatTime(currentTime)} / {formatTime(duration)}
+              </span>
+              
+              <button className="player-btn" onClick={() => frameByFrame(-1)} title="Previous frame" aria-label="Previous frame">
+                <FiChevronLeft size={20} />
+              </button>
+              <button className="player-btn" onClick={() => frameByFrame(1)} title="Next frame" aria-label="Next frame">
+                <FiChevronRight size={20} />
+              </button>
+              
+              <div style={{flexGrow: 1}}></div> 
+
+              <div style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
+                
+                {showSpeedMenu && (
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '120%', 
+                    right: '-35px',
+                    background: 'rgba(35, 39, 47, 0.95)',
+                    borderRadius: 8,
+                    padding: '10px',
+                    display: 'flex',
+                    flexDirection: 'column', 
+                    zIndex: 30,
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.4)'
+                  }}>
+                    <span style={{color: 'white', fontSize: '0.8rem', paddingBottom: '5px', borderBottom: '1px solid #444', marginBottom: '5px'}}>Playback Speed</span>
+                    {PLAYBACK_RATES.map(rate => (
+                      <button
+                        key={rate}
+                        style={speedButtonStyle(rate)}
+                        onClick={() => {
+                          dispatch(setPlaybackRate(rate));
+                          setShowSpeedMenu(false); 
+                        }}
+                        aria-label={`Set playback speed to ${rate}x`}
+                        className="player-btn"
+                      >
+                        {rate}x
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                <button 
+                  className="player-btn" 
+                  onClick={() => setShowSpeedMenu(!showSpeedMenu)}
+                  aria-label="Playback settings"
+                >
+                  <FiSettings size={20} />
+                </button>
+              </div>
+
+              <button className="player-btn" onClick={takeScreenshot} title="Take Screenshot" aria-label="Take Screenshot">
+                <FiCamera size={20} />
+              </button>
+              <button className="player-btn" onClick={handleFullscreen} aria-label="Fullscreen">
+                <FiMaximize size={20} />
+              </button>
+            </div>
+
+          </div> {/* <-- ANCHOR DIV CLOSES (holds video + 2 floating bars + canvas) */}
+          
+          {/* --- 3. ANNOTATION TOOLBAR (STAYS OUTSIDE) --- */}
           <div
             className="annotation-toolbar-bar"
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: 10,
-              background: '#23272f',
-              borderRadius: '0 0 12px 12px',
-              borderTop: '1px solid #232323',
+              background: '#23272f', 
+              borderRadius: '0 0 12px 12px', 
+              borderTop: '1px solid #232323', 
               padding: '9px 20px 0px',
               marginBottom: 0,
               width: '100%',
@@ -377,14 +504,18 @@ const VideoPlayer: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
+
+        </div> {/* <-- video-player-box CLOSES */}
+
         {/* Annotation Properties below video player */}
         <div className="annotation-properties-box" style={annotationPropsBoxStyles}>
           <AnnotationProperties />
         </div>
       </div>
+      
       {/* Right: Video Description + Annotation List */}
       <aside className="video-right-col" style={rightColStyles}>
+        
         {/* Video Description in its own box */}
         <div className="video-description-box" style={descriptionBoxStyles(showFullDesc)}>
           <div style={{ fontWeight: 600, color: '#2ecc71', marginBottom: 4, fontSize: '1.13em' }}>
@@ -461,6 +592,7 @@ const VideoPlayer: React.FC = () => {
           `}
           </style>
         </div>
+        
         {/* Annotation List below description box */}
         <div className="annotation-list-box" style={annotationListBoxStyles}>
           <div
@@ -477,6 +609,7 @@ const VideoPlayer: React.FC = () => {
           <AnnotationList />
         </div>
       </aside>
+      
       {/* Responsive styles and animations */}
       <style>
         {`
@@ -655,7 +788,21 @@ const VideoPlayer: React.FC = () => {
         .progress-markers .marker:hover .marker-tooltip {
           opacity: 0.7;
         }
-      `}
+        
+          /* --- FULLSCREEN FIX --- */
+          .video-anchor-container:fullscreen {
+            background: #000;
+            width: 100%;
+            height: 100%;
+          }
+
+          .video-anchor-container:fullscreen video {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: contain; 
+            border-radius: 0; 
+          }
+        `}
       </style>
     </div>
   );

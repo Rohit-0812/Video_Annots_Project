@@ -61,8 +61,8 @@ const About: React.FC = () => (
 
     <h3 style={{ color: '#0d6efd', marginTop: 32 }}>Developer</h3>
     <p>
-      <strong>Jagankrishna Nallasingu</strong><br />
-      Prefinal year Computer Science undergraduate at IIIT Hyderabad.<br />
+      <strong>Rohit Sunkari</strong><br />
+      Final year Electronics and Communications undergraduate at IIIT Hyderabad.<br />
 
       <a
         href="https://www.linkedin.com/in/rohit-sunkari-0a8a8226b/"
