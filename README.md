@@ -4,12 +4,7 @@ A **professional, modern web-based video annotation tool** for efficient video r
 
 ---
 
-## 🚀 Live Demo
 
-- **Frontend:** [https://video-annotation-tool-zd8i.vercel.app](https://video-annotation-tool-zd8i.vercel.app)
-- **Backend API:** [https://video-annotation-tool.onrender.com](https://video-annotation-tool.onrender.com)
-
----
 
 ### Main Video Annotation Interface
 
