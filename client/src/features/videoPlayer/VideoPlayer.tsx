@@ -375,27 +375,32 @@ const VideoPlayer: React.FC = () => {
               padding: '10px 20px', 
               boxSizing: 'border-box'
             }}>
-              <span style={{ minWidth: 70, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
-              {formatTime(currentTime)} / {formatTime(duration)}
-            </span>
-                        {/* --- NEW VOLUME CONTROLS --- */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <button className="player-btn" onClick={toggleMute} aria-label="Toggle Mute">
-                {/* Show mute icon if volume is 0, else show volume icon */}
-                {volume === 0 ? <FiVolumeX size={20} /> : <FiVolume2 size={20} />}
-              </button>
-              <input
-                type="range"
-                min={0}
-                max={1}
-                step={0.01}
-                value={volume}
-                onChange={handleVolumeChange}
-                className="custom-seeker" // Re-use the slider style
-                style={{ width: '100px', height: 6, margin: 0 }}
-              />
-            </div>
-            {/* --- END OF VOLUME CONTROLS --- */}
+              {/* THIS IS THE DUPLICATE SPAN THAT WAS REMOVED:
+                
+                <span style={{ minWidth: 70, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
+                  {formatTime(currentTime)} / {formatTime(duration)}
+                </span> 
+              
+              */}
+              
+              {/* --- NEW VOLUME CONTROLS --- */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button className="player-btn" onClick={toggleMute} aria-label="Toggle Mute">
+                  {/* Show mute icon if volume is 0, else show volume icon */}
+                  {volume === 0 ? <FiVolumeX size={20} /> : <FiVolume2 size={20} />}
+                </button>
+                <input
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={volume}
+                  onChange={handleVolumeChange}
+                  className="custom-seeker" // Re-use the slider style
+                  style={{ width: '100px', height: 6, margin: 0 }}
+                />
+              </div>
+              {/* --- END OF VOLUME CONTROLS --- */}
               
               <button className="player-btn" onClick={handlePlayPause} aria-label="Play/Pause">
                 {playing ? <FiPause size={22} /> : <FiPlay size={22} />}
